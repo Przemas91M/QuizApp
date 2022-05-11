@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import './question.dart';
+import './answer.dart';
+
 // void main() {
 //   runApp(MyApp());
 // }
@@ -10,25 +13,46 @@ void main() => runApp(
 class MyApp extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return MyAppState();
+    return _MyAppState();
   }
 }
 
-class MyAppState extends State<MyApp> {
-  int questionIndex = 0;
-  void answerQuestion() {
-    setState(() {
-      questionIndex++;
-    });
-    print(questionIndex);
+//podkreslnik na poczatku nazwy oznacza, ze dana zmienna jest prywatna
+class _MyAppState extends State<MyApp> {
+  final questions = const [
+    {
+      'question': 'What\'s you favourite color?',
+      'answers': ['Black', 'Blue', 'Red', 'Green']
+    },
+    {
+      'question': 'What\'s your favourite animal?',
+      'answers': ['Dog', 'Cat', 'Horse', 'Hamster']
+    },
+    {
+      'question': 'What\'s your favourite band?',
+      'answers': [
+        'The Killers',
+        'Flux Pavilion',
+        'Ellie Goulding',
+        'Simian Mobile Disco'
+      ]
+    }
+  ];
+
+  int _questionIndex = 0;
+  void _answerQuestion() {
+    //wewnątrz tej funkcji umieszczam kod, który zmienia stan aplikacji, potem zostaje ona renderowana na nowo
+    //sprawdzam warunek ilosci pytan, zeby nie przekroczyc indexu
+    if (_questionIndex < questions.length) {
+      setState(() {
+        _questionIndex++;
+      });
+      print(_questionIndex);
+    }
   }
 
   @override
   build(BuildContext context) {
-    var questions = [
-      'What\'s you favourite color?',
-      'What\'s your favourite animal?',
-    ];
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -36,24 +60,15 @@ class MyAppState extends State<MyApp> {
         ),
         body: Column(
           children: [
-            Text(questions[questionIndex]),
-            RaisedButton(
-              child: Text('Answer1'),
-              onPressed:
-                  answerQuestion, //wprowadzam tutaj wskaźnik do funkcji. Jezeli wpiszę tu funkcję z nawiasami, zostanie ona wykonana.
-            ), //jest to wycofane, ale nadal uzywane.
-            RaisedButton(
-              child: Text('Answer2'),
-              onPressed: () => print(
-                  'Answer 2 chosen!'), //moge od razu zdefiniowac i wykonac jednoliniowa funkcje
-            ),
-            RaisedButton(
-              child: Text('Answer3'),
-              onPressed: () {
-                //..wykonuje tutaj operacje
-                print('Answer 3 chosen!'); //funkcja wieloliniowa
-              },
-            ),
+            //Przywoluje jedno pytanie z listy
+            //wywoluje mapę - element z listy questions, o wybranym indeksie i kluczu 'question'
+            Question(questions[_questionIndex]['question']),
+            //generuje dynamicznie przyciski z odpowiedziami, w zaleznosci ile mam odpowiedzi.
+            //pobiera odpowiedzi do listy i zwraca kazda odpowiedz w postaci przycisku
+            ...(questions[_questionIndex]['answers'] as List<String>)
+                .map((answer) {
+              return Answer(_answerQuestion, answer);
+            }).toList()
           ],
         ),
       ),
