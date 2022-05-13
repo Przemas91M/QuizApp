@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_complete_guide/quiz.dart';
 
-import './question.dart';
-import './answer.dart';
-
+import './quiz.dart';
+import './result.dart';
 // void main() {
 //   runApp(MyApp());
 // }
@@ -19,31 +19,50 @@ class MyApp extends StatefulWidget {
 
 //podkreslnik na poczatku nazwy oznacza, ze dana zmienna jest prywatna
 class _MyAppState extends State<MyApp> {
-  final questions = const [
+  final _questions = const [
     {
       'question': 'What\'s you favourite color?',
-      'answers': ['Black', 'Blue', 'Red', 'Green']
+      'answers': [
+        {'text': 'Black', 'score': 10},
+        {'text': 'Blue', 'score': 5},
+        {'text': 'Red', 'score': 3},
+        {'text': 'Green', 'score': 1}
+      ]
     },
     {
       'question': 'What\'s your favourite animal?',
-      'answers': ['Dog', 'Cat', 'Horse', 'Hamster']
+      'answers': [
+        {'text': 'Horse', 'score': 10},
+        {'text': 'Hamster', 'score': 5},
+        {'text': 'Cat', 'score': 3},
+        {'text': 'Dog', 'score': 1}
+      ]
     },
     {
       'question': 'What\'s your favourite band?',
       'answers': [
-        'The Killers',
-        'Flux Pavilion',
-        'Ellie Goulding',
-        'Simian Mobile Disco'
+        {'text': 'The Killers', 'score': 10},
+        {'text': 'Flux Pavilion', 'score': 5},
+        {'text': 'Ellie Goulding', 'score': 3},
+        {'text': 'Nellie Furtado', 'score': 1}
       ]
     }
   ];
 
   int _questionIndex = 0;
-  void _answerQuestion() {
+  int _totalScore = 0;
+  void _resetQuiz() {
+    setState(() {
+      _questionIndex = 0;
+      _totalScore = 0;
+    });
+  }
+
+  void _answerQuestion(int score) {
     //wewnątrz tej funkcji umieszczam kod, który zmienia stan aplikacji, potem zostaje ona renderowana na nowo
+    _totalScore += score;
     //sprawdzam warunek ilosci pytan, zeby nie przekroczyc indexu
-    if (_questionIndex < questions.length) {
+    if (_questionIndex < _questions.length) {
       setState(() {
         _questionIndex++;
       });
@@ -58,19 +77,14 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: Text('My first app'),
         ),
-        body: Column(
-          children: [
-            //Przywoluje jedno pytanie z listy
-            //wywoluje mapę - element z listy questions, o wybranym indeksie i kluczu 'question'
-            Question(questions[_questionIndex]['question']),
-            //generuje dynamicznie przyciski z odpowiedziami, w zaleznosci ile mam odpowiedzi.
-            //pobiera odpowiedzi do listy i zwraca kazda odpowiedz w postaci przycisku
-            ...(questions[_questionIndex]['answers'] as List<String>)
-                .map((answer) {
-              return Answer(_answerQuestion, answer);
-            }).toList()
-          ],
-        ),
+        body:
+            //rozdzielam bloki kodu na dwa widgety: Quiz i Result
+            _questionIndex < _questions.length
+                ? Quiz(
+                    answerQuestion: _answerQuestion,
+                    questionIndex: _questionIndex,
+                    questions: _questions)
+                : Result(_totalScore, _resetQuiz),
       ),
     );
   }
